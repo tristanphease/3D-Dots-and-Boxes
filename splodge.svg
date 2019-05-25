@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100mm" height="100mm" viewBox="0 0 100 100" id="splodge">
+  <g transform="translate(0,-197)">
+    <path style="fill:none;stroke:#000000;stroke-width:1.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 19.465774,250.31994 c 0,0 -23.2455358,-37.41964 12.473215,-28.34821 0.566962,1.13393 24.379462,-20.41072 32.883927,1.13393 1.133927,3.40178 31.183034,-1.7009 20.977677,20.97767 -1.700892,3.96875 26.647327,22.67857 -1.133927,36.85268 0,-1.13393 -24.946428,34.01786 -34.584823,-5.10268 0,0 -64.633926,25.5134 -30.616069,-25.51339 z"
+       id="splodgePath" />
+  </g>
+</svg>
