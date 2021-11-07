@@ -213,6 +213,10 @@ function PlayerOption(x, y, sizeX, sizeY) {
         }
         for (;i<this.players.length;i++) {
             if (this.players[i].visible == true) {
+                if (this.players[i].firstInput.checked) {
+                    playerVars.firstPlayer = 0;
+                    this.players[0].firstInput.checked = true;
+                }
                 this.players[i].changeVisibility();
             }
         }
