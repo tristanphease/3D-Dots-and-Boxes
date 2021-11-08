@@ -1,5 +1,12 @@
 var optionVars = {x: 3, y: 3, z: 3, numPlayers: 2, rotateButton: 2, clickButton: 0};
-var playerVars = {firstPlayer: 0,  playerColours: ["#ff4444", "#4444ff", "#44ff44"]};
+
+const AI_VALUES = {
+    player: 1,
+    random: 2,
+    simple: 3,
+};
+
+var playerVars = {firstPlayer: 0,  playerColours: ["#ff4444", "#4444ff", "#44ff44"], playerAIs: [AI_VALUES.player]};
 var triObjs = [];
 var allObjs = [];
 var sizeObjs = [];
@@ -7,20 +14,31 @@ var buttonObjs = [];
 var hoveredTri;
 var hoveredButton;
 var optionsFirst = true;
-var po;
+var playerOptions;
+
+const AI_OPTIONS = [
+    AIOptionValues(AI_VALUES.player, "Player"),
+    AIOptionValues(AI_VALUES.random, "Level 1"),
+    AIOptionValues(AI_VALUES.simple, "Level 2"),
+];
+
+function AIOptionValues(value, name) {
+    return {value, name};
+}
+
 function setupOptions() {
     options = true;
     if (optionsFirst) {
         optionsFirst = false;
     } else {
         resetOptions();
-        return 0;
+        return;
     }
     new SizeChanger(0.1, 0.2, 0.02, "x", "x dots");
     new SizeChanger(0.1, 0.3, 0.02, "y", "y dots");
     new SizeChanger(0.1, 0.4, 0.02, "z", "z dots");
     new SizeChanger(0.4, 0.2, 0.02, "numPlayers", "Number of Players", function(increased) {
-        po.makePlayers();
+        playerOptions.makePlayers();
     });
     
     new OptionButton(0.7, 0.1, 0.2, "Menu", function() {
@@ -32,14 +50,14 @@ function setupOptions() {
         setupGame();
     });
     
-    po = new PlayerOption(0.0, 0.6, 1.0, 0.4);
+    playerOptions = new PlayerOption(0.0, 0.6, 1.0, 0.4);
     
     addOptionsEvents();
     updateOptions();
 }
 
 function resetOptions() {
-    po.makePlayers();
+    playerOptions.makePlayers();
     addOptionsEvents();
     updateOptions();
 }
@@ -56,7 +74,6 @@ function updateOptions() {
 }
 
 function optionsMouseDown(e) {
-    e.preventDefault();
     if (hoveredTri) {
         hoveredTri.change();
     }
@@ -101,10 +118,10 @@ function optionsResize() {
     for (var i=0;i<buttonObjs.length;i++) {
         buttonObjs[i].calculatePos();
     }
-    po.calculatePos();
-    po.makePlayers();
-    for (var i=0;i<po.players.length;i++) {
-        po.players[i].placeInputs();
+    playerOptions.calculatePos();
+    playerOptions.makePlayers();
+    for (var i=0;i<playerOptions.players.length;i++) {
+        playerOptions.players[i].placeInputs();
     }
 }
 
@@ -124,9 +141,9 @@ function closeOptions() {
     options = false;
     removeOptionsEvents();
     clearCanvas();
-    for (var i=0;i<po.players.length;i++) {
-        if (po.players[i].visible) {
-            po.players[i].changeVisibility();
+    for (var i=0;i<playerOptions.players.length;i++) {
+        if (playerOptions.players[i].visible) {
+            playerOptions.players[i].changeVisibility();
         }
     }
     hoveredButton.hovered = false;
@@ -233,8 +250,26 @@ function Player(x, y, sizeX, sizeY, obj, index) {
     this.obj = obj;
     this.index = index;
     this.visible = true;
-    this.colorInput = document.createElement("INPUT");
+    this.colorInput = document.createElement("input");
     this.colorInput.type = "color";
+
+    this.AIInput = document.createElement("select");
+    for (let optionVals of AI_OPTIONS) {
+        let option = new Option(optionVals.name, optionVals.value);
+        option.id = "optionAI" + this.index + "" + optionVals.value;
+        this.AIInput.appendChild(option);
+    }
+
+    this.AIInput.onchange = function(e) {
+        playerVars.playerAIs[this.index] = this.AIInput.value;
+    }
+    if (playerVars.playerAIs[this.index]) {
+        this.AIInput.value = playerVars.playerAIs[this.index];
+    } else {
+        this.AIInput.value = AI_VALUES.random;
+        playerVars.playerAIs.push(AI_VALUES.random);
+    }
+
     var self = this;
     this.colorInput.oninput = function(e) {
         //self is player, this is colorinput
@@ -259,26 +294,34 @@ function Player(x, y, sizeX, sizeY, obj, index) {
         playerVars.firstPlayer = self.index;
     }
     document.body.appendChild(this.colorInput);
+    document.body.appendChild(this.AIInput);
     document.body.appendChild(this.firstInput);
     this.placeInputs = function() {
-        this.colorInput.style.left = (this.x+this.sizeX*2/5) + "px";
-        this.colorInput.style.top = (this.y+this.sizeY*9/20-this.sizeY/9) + "px";
-        this.firstInput.style.left = (this.x+this.sizeX*2/5) + "px";
-        this.firstInput.style.top = (this.y+this.sizeY*4/5-this.sizeY/8) + "px";
+        this.colorInput.style.left = (this.x+this.sizeX*3/5) + "px";
+        this.colorInput.style.top = (this.y+this.sizeY*14/20-this.sizeY/9) + "px";
+        this.AIInput.style.left = (this.x+this.sizeX*3/5) + "px";
+        this.AIInput.style.top = (this.y+this.sizeY*5/10-this.sizeY/9) + "px";
+        this.firstInput.style.left = (this.x+this.sizeX*3/5) + "px";
+        this.firstInput.style.top = (this.y+this.sizeY*9/10-this.sizeY/8) + "px";
         this.firstInput.style.width = this.sizeX/8 + "px";
         this.firstInput.style.height = this.sizeY/8 + "px";
     }
     this.close = function() {
+        document.body.removeChild(this.firstInput);
         document.body.removeChild(this.colorInput);
+        document.body.removeChild(this.AIInput);
     }
     this.placeInputs();
     this.draw = function() {
         if (this.visible) {
-            ctx2d.font = (this.sizeX/10) + "px Arial";
+            //epic parabolic
+            ctx2d.font = (this.sizeX / 6 - (this.sizeX / 100) ** 2) + "px Arial";
+
             var width = ctx2d.measureText("Player " + (index+1)).width;
-            ctx2d.fillText("Player " + (index+1), this.x+this.sizeX/2-width/2, this.y+this.sizeX/10);
-            ctx2d.fillText("Colour: ", this.x, this.y+this.sizeY*9/20);
-            ctx2d.fillText("First: ", this.x, this.y+this.sizeY*4/5);
+            ctx2d.fillText("Player " + (index+1), this.x+this.sizeX/2-width/2, this.y+this.sizeY*2/10);
+            ctx2d.fillText("AI Level: ", this.x, this.y+this.sizeY*5/10);
+            ctx2d.fillText("Colour: ", this.x, this.y+this.sizeY*14/20);
+            ctx2d.fillText("First: ", this.x, this.y+this.sizeY*9/10);
             ctx2d.beginPath();
             ctx2d.rect(this.x, this.y, this.sizeX, this.sizeY);
             ctx2d.stroke();
@@ -290,9 +333,11 @@ function Player(x, y, sizeX, sizeY, obj, index) {
         if (!this.visible) {
             this.colorInput.style.display = "none";
             this.firstInput.style.display = "none";
+            this.AIInput.style.display = "none";
         } else {
             this.colorInput.style.display = "block";
             this.firstInput.style.display = "block";
+            this.AIInput.style.display = "block";
         }
     }
     allObjs.push(this);
