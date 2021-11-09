@@ -6,7 +6,7 @@ const AI_VALUES = {
     simple: 3,
 };
 
-var playerVars = {firstPlayer: 0,  playerColours: ["#ff4444", "#4444ff", "#44ff44"], playerAIs: [AI_VALUES.player]};
+var playerVars = {firstPlayer: 0,  playerColours: ["#ff4444", "#4444ff", "#44ff44"], playerAIs: [AI_VALUES.player, AI_VALUES.random]};
 var triObjs = [];
 var allObjs = [];
 var sizeObjs = [];

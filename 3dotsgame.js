@@ -309,6 +309,10 @@ function rotateAround(mouseX, mouseY) {
  * parameters are the position on the screen
  */
 function checkLine(mouseX, mouseY) {
+    //if not player, ignore this
+    if (playerVars.playerAIs[currplayer] != AI_VALUES.player) {
+        return;
+    }
     //convert mouseX/Y to normalised co-ords(-1 to 1)
     var normMouse = new THREE.Vector2();
     normMouse.x = (mouseX/window.innerWidth) * 2 - 1;
@@ -387,14 +391,29 @@ function checkCubes(line) {
 }
 
 function handleClick() {
-    hoveredLine.status = currplayer;
-    hoveredLine.material.opacity = 1;
-    var finishedCube = checkCubes(hoveredLine);
+    setLine(hoveredLine);
+    hoveredLine = null;
+}
+
+function setLine(line) {
+    line.status = currplayer;
+    line.material.opacity = 1;
+    line.material.color = playerColours[currplayer];
+    var finishedCube = checkCubes(line);
     if (!finishedCube) {
         currplayer = (currplayer + 1) % numPlayers;
     }
     displayScore();
-    hoveredLine = null;
+
+    switch (playerVars.playerAIs[currplayer]) {
+        case AI_VALUES.random:
+            getRandomMove();
+            break;
+        case AI_VALUES.simple:
+
+            break;
+
+    }
 }
 
 function displayScore() {
@@ -454,13 +473,13 @@ function mouseMove(e) {
     }
     mouseX = e.clientX;
     mouseY = e.clientY;
+    
     checkLine(e.clientX, e.clientY);
     if (mouseButtons[rotateButton] == true) {
         //use e.movementX/Y to rotate camera around centre
         //do this by thinking about a sphere the camera should be on around the centre
         rotateAround(e.movementX, e.movementY);
     }
-    
 }
 
 /**
