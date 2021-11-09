@@ -6,7 +6,7 @@ const AI_VALUES = {
     simple: 3,
 };
 
-var playerVars = {firstPlayer: 0,  playerColours: ["#ff4444", "#4444ff", "#44ff44"], playerAIs: [AI_VALUES.player, AI_VALUES.random]};
+var playerVars = {firstPlayer: 0,  playerColours: ["#ff4444", "#4444ff", "#44ff44"], playerAIs: [AI_VALUES.player, AI_VALUES.simple]};
 var triObjs = [];
 var allObjs = [];
 var sizeObjs = [];
@@ -266,8 +266,8 @@ function Player(x, y, sizeX, sizeY, obj, index) {
     if (playerVars.playerAIs[this.index]) {
         this.AIInput.value = playerVars.playerAIs[this.index];
     } else {
-        this.AIInput.value = AI_VALUES.random;
-        playerVars.playerAIs.push(AI_VALUES.random);
+        this.AIInput.value = AI_VALUES.simple;
+        playerVars.playerAIs.push(AI_VALUES.simple);
     }
 
     var self = this;

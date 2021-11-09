@@ -410,7 +410,7 @@ function setLine(line) {
             getRandomMove();
             break;
         case AI_VALUES.simple:
-
+            getSimpleMove();
             break;
 
     }
