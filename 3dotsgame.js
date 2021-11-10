@@ -405,15 +405,67 @@ function setLine(line) {
     }
     displayScore();
 
-    switch (playerVars.playerAIs[currplayer]) {
-        case AI_VALUES.random:
-            getRandomMove();
-            break;
-        case AI_VALUES.simple:
-            getSimpleMove();
-            break;
+    if (checkGameOver()) {
+        displayGameOverText();
+    } else {
+        switch (playerVars.playerAIs[currplayer]) {
+            case AI_VALUES.random:
+                getRandomMove();
+                break;
+            case AI_VALUES.simple:
+                getSimpleMove();
+                break;
 
+        }
     }
+}
+
+function checkGameOver() {
+    let sum = 0;
+    for (let i=0;i<playerScores.length;i++) {
+        sum += playerScores[i];
+    }
+    if (sum === cubes.length) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function displayGameOverText() {
+    ctx2d.font = "bold 40px Arial";
+    ctx2d.fillStyle = "black";
+
+    let line1Text = "Game Over";
+
+    let line2Text;
+    let winningPlayers = [];
+    let highest = 0;
+    for (let i=0;i<playerScores.length;i++) {
+        let score = playerScores[i];
+        if (score > highest) {
+            highest = score;
+            winningPlayers = [i];
+        } else if (score === highest) {
+            winningPlayers.push(i);
+        }
+    }
+
+    if (winningPlayers.length === 1) {
+        line2Text = "Player " + (winningPlayers[0] + 1) + " won!";
+    } else {
+        line2Text = "Players ";
+        for (let i=0;i<winningPlayers.length;i++) {
+            line2Text += (winningPlayers[i] + 1) + (i < winningPlayers.length - 1 ? ", " : " ");
+        }
+        line2Text += "tied for victory!";
+    }
+
+    let line1Width = ctx2d.measureText(line1Text).width;
+    let line2Width = ctx2d.measureText(line2Text).width;
+
+    ctx2d.fillText(line1Text, window.innerWidth/2 - line1Width/2, window.innerHeight/8);
+    ctx2d.fillText(line2Text, window.innerWidth/2 - line2Width/2, window.innerHeight/8 + 50);
 }
 
 function displayScore() {
